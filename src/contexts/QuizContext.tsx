@@ -7,7 +7,7 @@ interface QuizContextType {
   quizData: QuizData | null;
   setQuizData: (data: QuizData) => void;
   updateTeamScore: (teamId: number, points: number) => void;
-  markQuestionAnswered: (categoryIndex: number, questionIndex: number) => void;
+  markQuestionAnswered: (categoryIndex: number, questionIndex: number, teamId: number | null) => void;
   resetGame: () => void;
 }
 
@@ -25,11 +25,12 @@ export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
-  const markQuestionAnswered = (categoryIndex: number, questionIndex: number) => {
+  const markQuestionAnswered = (categoryIndex: number, questionIndex: number, teamId: number | null) => {
     setQuizData(prev => {
       if (!prev) return null;
       const newQuestions = [...prev.questions];
       newQuestions[categoryIndex][questionIndex].answered = true;
+      newQuestions[categoryIndex][questionIndex].answeredBy = teamId;
       return { ...prev, questions: newQuestions };
     });
   };

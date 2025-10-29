@@ -8,12 +8,11 @@ import { Team } from '@/types/quiz';
 import { Minus, Plus, Edit2, Check } from 'lucide-react';
 
 const TEAM_COLORS = [
-  'team-1',
-  'team-2',
-  'team-3',
-  'team-4',
-  'team-5',
-  'team-6',
+  'team-1', 'team-2', 'team-3', 'team-4', 'team-5', 'team-6',
+  'team-7', 'team-8', 'team-9', 'team-10', 'team-11', 'team-12',
+  'team-13', 'team-14', 'team-15', 'team-16', 'team-17', 'team-18',
+  'team-19', 'team-20', 'team-21', 'team-22', 'team-23', 'team-24',
+  'team-25', 'team-26', 'team-27', 'team-28', 'team-29', 'team-30',
 ];
 
 const Setup = () => {
@@ -24,7 +23,7 @@ const Setup = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleNumTeamsChange = (delta: number) => {
-    const newNum = Math.max(1, Math.min(6, numTeams + delta));
+    const newNum = Math.max(1, Math.min(30, numTeams + delta));
     setNumTeams(newNum);
     
     const newNames = [...teamNames];
@@ -82,7 +81,7 @@ const Setup = () => {
                 size="icon"
                 variant="game"
                 onClick={() => handleNumTeamsChange(1)}
-                disabled={numTeams >= 6}
+                disabled={numTeams >= 30}
               >
                 <Plus className="h-4 w-4" />
               </Button>

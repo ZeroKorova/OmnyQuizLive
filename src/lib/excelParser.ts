@@ -18,26 +18,35 @@ export const parseExcelFile = (file: File): Promise<QuizData> => {
           return;
         }
         
-        // Prima riga: categorie
-        const categories = jsonData[0].filter(Boolean).map(String);
-        
-        // Righe successive: domande organizzate per valore
-        const questions: any[][] = categories.map(() => []);
+        // Formato: Colonna 1 = Categoria, Colonna 2 = Punteggio, Colonna 3 = Domanda, Colonna 4 = Risposta
+        const categoryMap: { [key: string]: any[] } = {};
+        const categories: string[] = [];
         
         for (let i = 1; i < jsonData.length; i++) {
           const row = jsonData[i];
-          for (let j = 0; j < categories.length; j++) {
-            if (row[j]) {
-              questions[j].push({
-                category: categories[j],
-                value: (i) * 100, // Valore incrementale
-                question: row[j],
-                answer: row[j + categories.length] || '', // Risposta nella colonna successiva
-                answered: false,
-              });
+          const category = String(row[0] || '').trim();
+          const value = Number(row[1]) || 0;
+          const question = String(row[2] || '').trim();
+          const answer = String(row[3] || '').trim();
+          
+          if (category && question) {
+            if (!categoryMap[category]) {
+              categoryMap[category] = [];
+              categories.push(category);
             }
+            
+            categoryMap[category].push({
+              category,
+              value,
+              question,
+              answer,
+              answered: false,
+              answeredBy: null,
+            });
           }
         }
+        
+        const questions = categories.map(cat => categoryMap[cat]);
         
         resolve({ categories, questions });
       } catch (error) {

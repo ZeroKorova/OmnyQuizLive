@@ -35,15 +35,19 @@ const Game = () => {
   const handleCorrectAnswer = (teamId: number) => {
     if (selectedQuestion && currentQuestion) {
       updateTeamScore(teamId, currentQuestion.value);
-      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex);
+      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, teamId);
       setSelectedQuestion(null);
       setShowAnswer(false);
     }
   };
 
-  const handleWrongAnswer = () => {
-    setSelectedQuestion(null);
-    setShowAnswer(false);
+  const handleWrongAnswer = (teamId: number) => {
+    if (selectedQuestion && currentQuestion) {
+      updateTeamScore(teamId, -currentQuestion.value);
+      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, null);
+      setSelectedQuestion(null);
+      setShowAnswer(false);
+    }
   };
 
   return (
@@ -89,22 +93,29 @@ const Game = () => {
             <Card className="p-4 bg-primary text-primary-foreground text-center font-bold">
               <h3 className="text-lg uppercase">{category}</h3>
             </Card>
-            {quizData.questions[categoryIndex].map((question, questionIndex) => (
-              <Card
-                key={questionIndex}
-                className={`p-6 text-center cursor-pointer transition-all ${
-                  question.answered
-                    ? 'opacity-30 cursor-not-allowed'
-                    : 'hover:scale-105 hover:shadow-lg animate-glow'
-                }`}
-                onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
-                style={{
-                  backgroundColor: question.answered ? 'hsl(var(--muted))' : 'hsl(var(--card))',
-                }}
-              >
-                <p className="text-3xl font-bold">{question.value}</p>
-              </Card>
-            ))}
+            {quizData.questions[categoryIndex].map((question, questionIndex) => {
+              const answeredTeam = question.answeredBy ? teams.find(t => t.id === question.answeredBy) : null;
+              return (
+                <Card
+                  key={questionIndex}
+                  className={`p-6 text-center cursor-pointer transition-all ${
+                    question.answered
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'hover:scale-105 hover:shadow-lg animate-glow'
+                  }`}
+                  onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
+                  style={{
+                    backgroundColor: answeredTeam 
+                      ? `hsl(var(--${answeredTeam.color}))` 
+                      : question.answered 
+                        ? 'hsl(var(--muted))' 
+                        : 'hsl(var(--card))',
+                  }}
+                >
+                  <p className="text-3xl font-bold">{question.value}</p>
+                </Card>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -142,29 +153,30 @@ const Game = () => {
                 </Card>
 
                 <div className="space-y-3">
-                  <p className="text-center font-semibold">Chi ha risposto correttamente?</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <p className="text-center font-semibold">Chi ha risposto?</p>
+                  <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
                     {teams.map((team) => (
-                      <Button
-                        key={team.id}
-                        variant="game"
-                        onClick={() => handleCorrectAnswer(team.id)}
-                        className="h-auto py-4"
-                        style={{ backgroundColor: `hsl(var(--${team.color}))` }}
-                      >
-                        <Check className="mr-2 h-5 w-5" />
-                        {team.name}
-                      </Button>
+                      <div key={team.id} className="flex gap-2">
+                        <Button
+                          variant="game"
+                          onClick={() => handleCorrectAnswer(team.id)}
+                          className="flex-1 h-auto py-4"
+                          style={{ backgroundColor: `hsl(var(--${team.color}))` }}
+                        >
+                          <Check className="mr-2 h-5 w-5" />
+                          {team.name}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleWrongAnswer(team.id)}
+                          className="h-auto"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ))}
                   </div>
-                  <Button
-                    variant="destructive"
-                    onClick={handleWrongAnswer}
-                    className="w-full"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Nessuno
-                  </Button>
                 </div>
               </div>
             )}
