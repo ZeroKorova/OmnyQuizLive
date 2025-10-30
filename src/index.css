@@ -8,14 +8,14 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 240 20% 5%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
-    --card: 240 15% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 95%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 240 15% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
@@ -25,8 +25,8 @@ All colors MUST be HSL.
     --secondary: 142 76% 36%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 10% 15%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
 
     --accent: 33 100% 50%;
     --accent-foreground: 0 0% 100%;
@@ -34,42 +34,42 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 15%;
+    --border: 0 0% 85%;
+    --input: 0 0% 95%;
     --ring: 217 91% 60%;
 
     --radius: 0.75rem;
     
-    --team-1: 217 91% 60%;
-    --team-2: 142 76% 36%;
+    --team-1: 217 95% 55%;
+    --team-2: 142 85% 40%;
     --team-3: 33 100% 50%;
-    --team-4: 280 70% 60%;
-    --team-5: 0 84% 60%;
-    --team-6: 180 70% 50%;
-    --team-7: 350 95% 55%;
-    --team-8: 160 85% 45%;
-    --team-9: 270 80% 65%;
-    --team-10: 40 92% 50%;
-    --team-11: 195 75% 55%;
-    --team-12: 310 85% 60%;
-    --team-13: 120 70% 50%;
-    --team-14: 60 88% 55%;
-    --team-15: 240 75% 65%;
-    --team-16: 15 90% 55%;
-    --team-17: 145 72% 48%;
-    --team-18: 290 78% 58%;
-    --team-19: 210 85% 60%;
-    --team-20: 75 80% 52%;
-    --team-21: 330 88% 58%;
-    --team-22: 170 73% 50%;
-    --team-23: 255 77% 62%;
-    --team-24: 25 95% 52%;
-    --team-25: 190 82% 54%;
-    --team-26: 300 75% 60%;
-    --team-27: 135 78% 46%;
-    --team-28: 50 85% 54%;
-    --team-29: 225 80% 58%;
-    --team-30: 340 90% 56%;
+    --team-4: 280 80% 55%;
+    --team-5: 0 90% 55%;
+    --team-6: 180 80% 45%;
+    --team-7: 350 100% 50%;
+    --team-8: 160 90% 40%;
+    --team-9: 270 85% 60%;
+    --team-10: 40 95% 45%;
+    --team-11: 195 85% 50%;
+    --team-12: 310 90% 55%;
+    --team-13: 120 80% 45%;
+    --team-14: 60 95% 50%;
+    --team-15: 240 85% 60%;
+    --team-16: 15 95% 50%;
+    --team-17: 145 80% 42%;
+    --team-18: 290 85% 53%;
+    --team-19: 210 90% 55%;
+    --team-20: 75 85% 47%;
+    --team-21: 330 95% 53%;
+    --team-22: 170 80% 45%;
+    --team-23: 255 85% 57%;
+    --team-24: 25 100% 48%;
+    --team-25: 190 90% 49%;
+    --team-26: 300 85% 55%;
+    --team-27: 135 85% 41%;
+    --team-28: 50 90% 49%;
+    --team-29: 225 85% 53%;
+    --team-30: 340 95% 51%;
     
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 50%), hsl(217 91% 70%));
     --gradient-secondary: linear-gradient(135deg, hsl(142 76% 30%), hsl(142 76% 50%));
@@ -96,16 +96,16 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 240 20% 5%;
-    --foreground: 0 0% 98%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 85%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 

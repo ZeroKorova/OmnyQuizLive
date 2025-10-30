@@ -12,6 +12,7 @@ export interface Question {
   answer: string;
   answered: boolean;
   answeredBy: number | null;
+  answeredCorrectly: boolean | null;
 }
 
 export interface QuizData {
