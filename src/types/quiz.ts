@@ -13,6 +13,7 @@ export interface Question {
   answered: boolean;
   answeredBy: number | null;
   answeredCorrectly: boolean | null;
+  customScore?: number;
 }
 
 export interface QuizData {

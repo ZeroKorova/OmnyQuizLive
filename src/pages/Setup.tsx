@@ -100,7 +100,7 @@ const Setup = () => {
                   className="w-8 h-8 rounded-full flex-shrink-0"
                   style={{ backgroundColor: `hsl(var(--${TEAM_COLORS[index]}))` }}
                 />
-                <span className="font-semibold w-20">Squadra {index + 1}</span>
+                <span className="font-semibold w-20">{index + 1}</span>
                 {editingIndex === index ? (
                   <div className="flex-1 flex gap-2">
                     <Input
