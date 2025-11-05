@@ -11,7 +11,7 @@ const Index = () => {
       <Card className="w-full max-w-2xl p-8 space-y-8 animate-slide-up">
         <div className="text-center space-y-4">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-glow">
-            Quiz Game
+            OMNI QUIZ
           </h1>
           <p className="text-xl text-muted-foreground">
             Sistema interattivo per quiz a squadre

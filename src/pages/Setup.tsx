@@ -19,7 +19,7 @@ const Setup = () => {
   const navigate = useNavigate();
   const { setTeams } = useQuiz();
   const [numTeams, setNumTeams] = useState(2);
-  const [teamNames, setTeamNames] = useState<string[]>(['Squadra 1', 'Squadra 2']);
+  const [teamNames, setTeamNames] = useState<string[]>(['1', '2']);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleNumTeamsChange = (delta: number) => {
@@ -29,7 +29,7 @@ const Setup = () => {
     const newNames = [...teamNames];
     if (newNum > teamNames.length) {
       for (let i = teamNames.length; i < newNum; i++) {
-        newNames.push(`Squadra ${i + 1}`);
+        newNames.push(`${i + 1}`);
       }
     } else {
       newNames.splice(newNum);
@@ -59,7 +59,7 @@ const Setup = () => {
       <Card className="w-full max-w-2xl p-8 space-y-8 animate-slide-up">
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            Quiz Game
+            OMNI QUIZ
           </h1>
           <p className="text-muted-foreground text-lg">Configura le squadre per iniziare</p>
         </div>

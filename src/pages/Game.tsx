@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trophy, Home, X, Check } from 'lucide-react';
 
 const Game = () => {
@@ -13,6 +14,8 @@ const Game = () => {
     categoryIndex: number;
     questionIndex: number;
   } | null>(null);
+  const [showHomeConfirm, setShowHomeConfirm] = useState(false);
+  const [showSecondConfirm, setShowSecondConfirm] = useState(false);
 
   if (!quizData) {
     navigate('/upload');
@@ -75,12 +78,12 @@ const Game = () => {
   return (
     <div className="min-h-screen p-4 space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate('/')}>
+        <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
           <Home className="mr-2 h-4 w-4" />
           Home
         </Button>
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-          Quiz Game
+          OMNI QUIZ
         </h1>
         <Button variant="game" onClick={() => navigate('/leaderboard')}>
           <Trophy className="mr-2 h-4 w-4" />
@@ -94,49 +97,63 @@ const Game = () => {
         ))}
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(120px, 1fr))` }}>
-          {quizData.categories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="space-y-2 md:space-y-3">
-              <Card className="p-3 md:p-4 bg-primary text-primary-foreground text-center font-bold">
-                <h3 className="text-xs md:text-base lg:text-lg uppercase break-words hyphens-auto" style={{ wordBreak: 'break-word' }}>{category}</h3>
+      <div className="space-y-4">
+        {/* Categories Header - Scrollable */}
+        <div className="overflow-x-auto">
+          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
+            {quizData.categories.map((category, categoryIndex) => (
+              <Card key={categoryIndex} className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold">
+                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight" style={{ wordBreak: 'break-word' }}>{category}</h3>
               </Card>
-              {[...quizData.questions[categoryIndex]].reverse().map((question, reversedIndex) => {
-                const questionIndex = quizData.questions[categoryIndex].length - 1 - reversedIndex;
-                const answeredTeam = question.answeredBy ? teams.find(t => t.id === question.answeredBy) : null;
-                return (
-                  <Card
-                    key={questionIndex}
-                    className={`p-4 md:p-6 text-center cursor-pointer transition-all relative ${
-                      question.answered
-                        ? 'opacity-70 cursor-not-allowed'
-                        : 'hover:scale-105 hover:shadow-lg'
-                    }`}
-                    onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
-                    style={{
-                      backgroundColor: answeredTeam 
-                        ? `hsl(var(--${answeredTeam.color}))` 
-                        : question.answered 
-                          ? 'hsl(var(--muted))' 
-                          : 'hsl(var(--card))',
-                    }}
-                  >
-                    <p className="text-2xl md:text-3xl font-bold">{question.value}</p>
-                    {question.customScore !== undefined && (
-                      <p className="text-lg md:text-xl font-bold text-yellow-500 absolute top-1 right-1">
-                        {question.customScore > 0 ? '+' : ''}{question.customScore}
+            ))}
+          </div>
+        </div>
+
+        {/* Questions Grid - Scrollable */}
+        <div className="overflow-x-auto">
+          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
+            {quizData.categories.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="space-y-2 md:space-y-3">
+                {[...quizData.questions[categoryIndex]].reverse().map((question, reversedIndex) => {
+                  const questionIndex = quizData.questions[categoryIndex].length - 1 - reversedIndex;
+                  const answeredTeam = question.answeredBy ? teams.find(t => t.id === question.answeredBy) : null;
+                  return (
+                    <Card
+                      key={questionIndex}
+                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative ${
+                        question.answered
+                          ? 'opacity-70 cursor-not-allowed'
+                          : 'hover:scale-105 hover:shadow-lg'
+                      }`}
+                      onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
+                      style={{
+                        backgroundColor: answeredTeam 
+                          ? `hsl(var(--${answeredTeam.color}))` 
+                          : question.answered 
+                            ? 'hsl(var(--muted))' 
+                            : 'hsl(var(--card))',
+                      }}
+                    >
+                      <p className="text-xl md:text-2xl lg:text-3xl font-bold">
+                        {question.customScore !== undefined ? (
+                          <span className="text-yellow-500">
+                            {question.customScore > 0 ? '+' : ''}{question.customScore}
+                          </span>
+                        ) : (
+                          question.value
+                        )}
                       </p>
-                    )}
-                    {question.answered && question.answeredCorrectly === false && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <X className="w-16 h-16 md:w-20 md:h-20 text-black opacity-80" strokeWidth={4} />
-                      </div>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
-          ))}
+                      {question.answered && question.answeredCorrectly === false && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <X className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-black opacity-80" strokeWidth={4} />
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -213,12 +230,11 @@ const Game = () => {
                   {teams.map((team) => (
                     <Button
                       key={team.id}
-                      variant="outline"
                       onClick={() => handleWrongAnswer(team.id)}
-                      className="w-full h-auto py-3 md:py-4 border-2 font-semibold relative"
+                      className="w-full h-auto py-3 md:py-4 border-2 font-semibold relative text-white"
                       style={{ 
-                        borderColor: `hsl(var(--${team.color}))`,
-                        color: `hsl(var(--${team.color}))`
+                        backgroundColor: `hsl(var(--${team.color}))`,
+                        borderColor: `hsl(var(--${team.color}))`
                       }}
                     >
                       <X className="absolute left-2 h-4 w-4" />
@@ -231,6 +247,43 @@ const Game = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showHomeConfirm} onOpenChange={setShowHomeConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tornare alla Home?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vuoi davvero tornare alla home? Il gioco in corso non sarà salvato.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowHomeConfirm(false);
+              setShowSecondConfirm(true);
+            }}>
+              Continua
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showSecondConfirm} onOpenChange={setShowSecondConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sei sicuro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Questa è l'ultima conferma. Tutti i dati del gioco corrente andranno persi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowHomeConfirm(false)}>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={() => navigate('/')} className="bg-destructive text-destructive-foreground">
+              Confermo, torna alla Home
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
