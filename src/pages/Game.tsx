@@ -78,7 +78,7 @@ const Game = () => {
   );
 
   return (
-    <div className={`min-h-screen p-4 space-y-6 ${theme}`}>
+    <div className={`min-h-screen p-4 space-y-6 ${theme === 'lcars' ? 'bg-black' : ''}`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
@@ -132,7 +132,7 @@ const Game = () => {
                   return (
                     <Card
                       key={questionIndex}
-                      className={`text-center cursor-pointer transition-all relative ${
+                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative ${
                         question.answered
                           ? 'opacity-70 cursor-not-allowed'
                           : 'hover:scale-105 hover:shadow-lg'
@@ -144,10 +144,9 @@ const Game = () => {
                           : question.answered 
                             ? 'hsl(var(--muted))' 
                             : 'hsl(var(--card))',
-                        padding: theme === 'lcars' ? '1rem 1.5rem' : undefined,
                       }}
                     >
-                      <p className="text-xl md:text-2xl lg:text-3xl font-bold">
+                      <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
                         {question.customScore !== undefined ? (
                           <span className="text-yellow-500">
                             {question.customScore > 0 ? '+' : ''}{question.customScore}
