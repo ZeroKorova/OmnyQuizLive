@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Team } from '@/types/quiz';
-import { Minus, Plus, Edit2, Check } from 'lucide-react';
+import { Minus, Plus, Edit2, Check, Palette } from 'lucide-react';
 
 const TEAM_COLORS = [
   'team-1', 'team-2', 'team-3', 'team-4', 'team-5', 'team-6',
@@ -18,6 +19,7 @@ const TEAM_COLORS = [
 const Setup = () => {
   const navigate = useNavigate();
   const { setTeams } = useQuiz();
+  const { theme, toggleTheme } = useTheme();
   const [numTeams, setNumTeams] = useState(2);
   const [teamNames, setTeamNames] = useState<string[]>(['1', '2']);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -55,13 +57,22 @@ const Setup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className={`min-h-screen flex items-center justify-center p-4 ${theme}`}>
       <Card className="w-full max-w-2xl p-8 space-y-8 animate-slide-up">
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <h1 className={`text-5xl font-bold ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))] uppercase tracking-wider' : 'bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent'}`}>
             OMNI QUIZ
           </h1>
           <p className="text-muted-foreground text-lg">Configura le squadre per iniziare</p>
+          <Button
+            variant={theme === 'lcars' ? 'default' : 'outline'}
+            size="sm"
+            onClick={toggleTheme}
+            className="mt-4"
+          >
+            <Palette className="h-4 w-4 mr-2" />
+            {theme === 'white' ? 'Tema LCARS' : 'Tema Bianco'}
+          </Button>
         </div>
 
         <div className="space-y-6">

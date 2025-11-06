@@ -2,11 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Trophy, Medal, ArrowLeft } from 'lucide-react';
 
 const Leaderboard = () => {
   const navigate = useNavigate();
   const { teams } = useQuiz();
+  const { theme } = useTheme();
 
   const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
 
@@ -18,7 +20,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className={`min-h-screen flex items-center justify-center p-4 ${theme}`}>
       <Card className="w-full max-w-3xl p-8 space-y-8 animate-slide-up">
         <Button
           variant="ghost"
@@ -30,7 +32,7 @@ const Leaderboard = () => {
         </Button>
 
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <h1 className={`text-5xl font-bold ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))] uppercase tracking-wider' : 'bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent'}`}>
             Classifica
           </h1>
           <p className="text-muted-foreground text-lg">Punteggi delle squadre</p>

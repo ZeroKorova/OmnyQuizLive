@@ -2,15 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Trophy, Users, Upload } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className={`min-h-screen flex items-center justify-center p-4 ${theme}`}>
       <Card className="w-full max-w-2xl p-8 space-y-8 animate-slide-up">
         <div className="text-center space-y-4">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-glow">
+          <h1 className={`text-6xl font-bold ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))] uppercase tracking-wider' : 'bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent'} animate-glow`}>
             OMNI QUIZ
           </h1>
           <p className="text-xl text-muted-foreground">

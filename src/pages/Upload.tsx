@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { parseExcelFile } from '@/lib/excelParser';
 import { saveQuizFile, getSavedQuizzes, deleteQuizFile, SavedQuiz } from '@/lib/quizStorage';
 import { Upload, FileSpreadsheet, ArrowLeft, Trash2, Play } from 'lucide-react';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input';
 const UploadPage = () => {
   const navigate = useNavigate();
   const { setQuizData, teams } = useQuiz();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState<string>('');
   const [quizTitle, setQuizTitle] = useState<string>('');
@@ -64,7 +66,7 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className={`min-h-screen flex items-center justify-center p-4 ${theme}`}>
       <Card className="w-full max-w-2xl p-8 space-y-8 animate-slide-up">
         <Button
           variant="ghost"
@@ -76,7 +78,7 @@ const UploadPage = () => {
         </Button>
 
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <h1 className={`text-5xl font-bold ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))] uppercase tracking-wider' : 'bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent'}`}>
             OMNI QUIZ
           </h1>
           <p className="text-muted-foreground text-lg">

@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trophy, Home, X, Check } from 'lucide-react';
+import { Trophy, Home, X, Check, Palette } from 'lucide-react';
 
 const Game = () => {
   const navigate = useNavigate();
   const { teams, quizData, updateTeamScore, markQuestionAnswered } = useQuiz();
+  const { theme, toggleTheme } = useTheme();
   const [selectedQuestion, setSelectedQuestion] = useState<{
     categoryIndex: number;
     questionIndex: number;
@@ -76,13 +78,23 @@ const Game = () => {
   );
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
+    <div className={`min-h-screen p-4 space-y-6 ${theme}`}>
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
-          <Home className="mr-2 h-4 w-4" />
-          Home
-        </Button>
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
+            <Home className="mr-2 h-4 w-4" />
+            Home
+          </Button>
+          <Button
+            variant={theme === 'lcars' ? 'default' : 'outline'}
+            size="sm"
+            onClick={toggleTheme}
+          >
+            <Palette className="h-4 w-4 mr-2" />
+            {theme === 'white' ? 'LCARS' : 'Bianco'}
+          </Button>
+        </div>
+        <h1 className={`text-3xl md:text-4xl font-bold ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))] uppercase tracking-wider' : 'bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent'}`}>
           OMNI QUIZ
         </h1>
         <Button variant="game" onClick={() => navigate('/leaderboard')}>

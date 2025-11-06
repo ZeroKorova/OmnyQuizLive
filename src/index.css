@@ -107,6 +107,44 @@ All colors MUST be HSL.
     --sidebar-border: 0 0% 85%;
     --sidebar-ring: 217 91% 60%;
   }
+
+  .lcars {
+    --background: 0 0% 0%;
+    --foreground: 33 100% 55%;
+    
+    --card: 0 0% 10%;
+    --card-foreground: 33 100% 55%;
+    
+    --popover: 0 0% 5%;
+    --popover-foreground: 33 100% 55%;
+    
+    --primary: 33 100% 55%;
+    --primary-foreground: 0 0% 0%;
+    --primary-glow: 33 100% 65%;
+    
+    --secondary: 217 85% 60%;
+    --secondary-foreground: 0 0% 0%;
+    
+    --muted: 0 0% 20%;
+    --muted-foreground: 33 100% 55%;
+    
+    --accent: 280 85% 65%;
+    --accent-foreground: 0 0% 0%;
+    
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 0%;
+    
+    --border: 33 100% 55%;
+    --input: 0 0% 15%;
+    --ring: 33 100% 55%;
+    
+    --lcars-orange: 33 100% 55%;
+    --lcars-blue: 217 85% 60%;
+    --lcars-pink: 320 85% 70%;
+    --lcars-yellow: 45 100% 60%;
+    --lcars-red: 0 85% 55%;
+    --lcars-purple: 280 85% 65%;
+  }
 }
 
 @layer base {
