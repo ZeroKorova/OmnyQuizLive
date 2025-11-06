@@ -132,11 +132,11 @@ const Game = () => {
                   return (
                     <Card
                       key={questionIndex}
-                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative ${
+                      className={`text-center cursor-pointer transition-all relative ${
                         question.answered
                           ? 'opacity-70 cursor-not-allowed'
                           : 'hover:scale-105 hover:shadow-lg'
-                      }`}
+                      } ${theme === 'lcars' ? 'rounded-full' : ''}`}
                       onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
                       style={{
                         backgroundColor: answeredTeam 
@@ -144,6 +144,7 @@ const Game = () => {
                           : question.answered 
                             ? 'hsl(var(--muted))' 
                             : 'hsl(var(--card))',
+                        padding: theme === 'lcars' ? '1rem 1.5rem' : undefined,
                       }}
                     >
                       <p className="text-xl md:text-2xl lg:text-3xl font-bold">
@@ -176,22 +177,22 @@ const Game = () => {
       </div>
 
       <Dialog open={!!selectedQuestion} onOpenChange={() => setSelectedQuestion(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto ${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}>
           <DialogHeader>
-            <DialogTitle className="text-xl md:text-2xl">
+            <DialogTitle className={`text-xl md:text-2xl ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}`}>
               {currentQuestion?.category} - {currentQuestion?.value} punti
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 md:space-y-6">
-            <Card className="p-6 md:p-8 bg-primary/10">
-              <p className="text-lg md:text-2xl text-center font-semibold">
+            <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-blue))]' : 'bg-primary/10'}`}>
+              <p className={`text-lg md:text-2xl text-center font-semibold ${theme === 'lcars' ? 'text-black' : ''}`}>
                 {currentQuestion?.question}
               </p>
             </Card>
 
-            <Card className="p-6 md:p-8 bg-secondary/10">
-              <p className="text-base md:text-xl text-center font-semibold">
+            <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-pink))]' : 'bg-secondary/10'}`}>
+              <p className={`text-base md:text-xl text-center font-semibold ${theme === 'lcars' ? 'text-black' : ''}`}>
                 {currentQuestion?.answer}
               </p>
             </Card>
@@ -199,7 +200,7 @@ const Game = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Risposta Corretta */}
               <div className="space-y-3">
-                <h3 className="text-center font-bold text-base md:text-lg uppercase text-green-700">
+                <h3 className={`text-center font-bold text-base md:text-lg uppercase ${theme === 'lcars' ? 'text-[hsl(var(--lcars-blue))]' : 'text-green-700'}`}>
                   Risposta Corretta:
                 </h3>
                 <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -207,7 +208,7 @@ const Game = () => {
                     <div key={team.id} className="space-y-2">
                       <Button
                         onClick={() => handleCorrectAnswer(team.id)}
-                        className="w-full h-auto py-3 md:py-4 text-white font-semibold"
+                        className={`w-full h-auto py-3 md:py-4 text-white font-semibold ${theme === 'lcars' ? 'rounded-full' : ''}`}
                         style={{ backgroundColor: `hsl(var(--${team.color}))` }}
                       >
                         <span className="text-xs md:text-sm">{team.name}</span>
@@ -220,7 +221,7 @@ const Game = () => {
                           }
                         }}
                         variant="outline"
-                        className="w-full h-auto py-2 md:py-3 text-xs md:text-sm font-semibold border-2"
+                        className={`w-full h-auto py-2 md:py-3 text-xs md:text-sm font-semibold border-2 ${theme === 'lcars' ? 'rounded-full' : ''}`}
                         style={{ 
                           borderColor: `hsl(var(--${team.color}))`,
                           color: `hsl(var(--${team.color}))`
@@ -235,7 +236,7 @@ const Game = () => {
 
               {/* Risposta Sbagliata */}
               <div className="space-y-3">
-                <h3 className="text-center font-bold text-base md:text-lg uppercase text-red-700">
+                <h3 className={`text-center font-bold text-base md:text-lg uppercase ${theme === 'lcars' ? 'text-[hsl(var(--lcars-red))]' : 'text-red-700'}`}>
                   Risposta Sbagliata:
                 </h3>
                 <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -243,7 +244,7 @@ const Game = () => {
                     <Button
                       key={team.id}
                       onClick={() => handleWrongAnswer(team.id)}
-                      className="w-full h-auto py-3 md:py-4 border-2 font-semibold relative text-white"
+                      className={`w-full h-auto py-3 md:py-4 border-2 font-semibold relative text-white ${theme === 'lcars' ? 'rounded-full' : ''}`}
                       style={{ 
                         backgroundColor: `hsl(var(--${team.color}))`,
                         borderColor: `hsl(var(--${team.color}))`

@@ -110,13 +110,13 @@ All colors MUST be HSL.
 
   .lcars {
     --background: 0 0% 0%;
-    --foreground: 33 100% 55%;
+    --foreground: 33 100% 60%;
     
-    --card: 0 0% 10%;
-    --card-foreground: 33 100% 55%;
+    --card: 0 0% 5%;
+    --card-foreground: 33 100% 60%;
     
     --popover: 0 0% 5%;
-    --popover-foreground: 33 100% 55%;
+    --popover-foreground: 33 100% 60%;
     
     --primary: 33 100% 55%;
     --primary-foreground: 0 0% 0%;
@@ -125,17 +125,17 @@ All colors MUST be HSL.
     --secondary: 217 85% 60%;
     --secondary-foreground: 0 0% 0%;
     
-    --muted: 0 0% 20%;
-    --muted-foreground: 33 100% 55%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 33 100% 60%;
     
     --accent: 280 85% 65%;
     --accent-foreground: 0 0% 0%;
     
     --destructive: 0 85% 55%;
-    --destructive-foreground: 0 0% 0%;
+    --destructive-foreground: 0 0% 100%;
     
-    --border: 33 100% 55%;
-    --input: 0 0% 15%;
+    --border: 33 100% 45%;
+    --input: 0 0% 10%;
     --ring: 33 100% 55%;
     
     --lcars-orange: 33 100% 55%;
