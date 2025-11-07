@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,7 +6,8 @@ import { useQuiz } from '@/contexts/QuizContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trophy, Home, X, Check, Palette } from 'lucide-react';
+import { Trophy, Home, X, Check, Palette, Clock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 const Game = () => {
   const navigate = useNavigate();
@@ -18,6 +19,60 @@ const Game = () => {
   } | null>(null);
   const [showHomeConfirm, setShowHomeConfirm] = useState(false);
   const [showSecondConfirm, setShowSecondConfirm] = useState(false);
+  const [timer, setTimer] = useState(100);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const hasPlayedBeepRef = useRef(false);
+
+  useEffect(() => {
+    if (selectedQuestion) {
+      setTimer(100);
+      hasPlayedBeepRef.current = false;
+      
+      const interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [selectedQuestion]);
+
+  useEffect(() => {
+    if (timer <= 10 && timer > 0 && selectedQuestion && !hasPlayedBeepRef.current) {
+      playBeep();
+    }
+  }, [timer, selectedQuestion]);
+
+  const playBeep = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    
+    const audioContext = audioContextRef.current;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+
+    if (timer === 10) {
+      hasPlayedBeepRef.current = true;
+    }
+  };
 
   if (!quizData) {
     navigate('/upload');
@@ -179,6 +234,46 @@ const Game = () => {
               {currentQuestion?.category} - {currentQuestion?.value} punti
             </DialogTitle>
           </DialogHeader>
+
+          {/* Timer */}
+          <div className={`flex items-center justify-center gap-3 p-4 rounded-lg ${
+            theme === 'lcars' 
+              ? 'bg-[hsl(var(--lcars-orange))]' 
+              : 'bg-primary/10'
+          }`}>
+            <Clock className={`h-6 w-6 ${
+              theme === 'lcars' ? 'text-black' : 'text-primary'
+            } ${timer <= 10 ? 'animate-pulse' : ''}`} />
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-lg font-bold ${
+                  theme === 'lcars' ? 'text-black' : 'text-primary'
+                } ${timer <= 10 ? 'animate-pulse' : ''}`}>
+                  {timer}s
+                </span>
+                <span className={`text-sm ${
+                  theme === 'lcars' ? 'text-black/70' : 'text-muted-foreground'
+                }`}>
+                  {Math.round((timer / 100) * 100)}%
+                </span>
+              </div>
+              {theme === 'lcars' ? (
+                <div className="w-full h-3 bg-black rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-1000 ${
+                      timer <= 10 ? 'bg-[hsl(var(--lcars-red))]' : 'bg-[hsl(var(--lcars-blue))]'
+                    }`}
+                    style={{ width: `${(timer / 100) * 100}%` }}
+                  />
+                </div>
+              ) : (
+                <Progress 
+                  value={(timer / 100) * 100} 
+                  className={`h-3 ${timer <= 10 ? '[&>div]:bg-destructive' : ''}`}
+                />
+              )}
+            </div>
+          </div>
           
           <div className="space-y-4 md:space-y-6">
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-blue))]' : 'bg-primary/10'}`}>
