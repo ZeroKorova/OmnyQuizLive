@@ -29,10 +29,7 @@ const Game = () => {
     : null;
 
   const handleQuestionClick = (categoryIndex: number, questionIndex: number) => {
-    const question = quizData.questions[categoryIndex][questionIndex];
-    if (!question.answered) {
-      setSelectedQuestion({ categoryIndex, questionIndex });
-    }
+    setSelectedQuestion({ categoryIndex, questionIndex });
   };
 
   const handleCorrectAnswer = (teamId: number) => {
@@ -132,10 +129,8 @@ const Game = () => {
                   return (
                     <Card
                       key={questionIndex}
-                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative ${
-                        question.answered
-                          ? 'opacity-70 cursor-not-allowed'
-                          : 'hover:scale-105 hover:shadow-lg'
+                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative hover:scale-105 hover:shadow-lg ${
+                        question.answered ? 'opacity-70' : ''
                       } ${theme === 'lcars' ? 'rounded-full' : ''}`}
                       onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
                       style={{
@@ -143,7 +138,9 @@ const Game = () => {
                           ? `hsl(var(--${answeredTeam.color}))` 
                           : question.answered 
                             ? 'hsl(var(--muted))' 
-                            : 'hsl(var(--card))',
+                            : theme === 'lcars' 
+                              ? 'black' 
+                              : 'hsl(var(--card))',
                       }}
                     >
                       <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
@@ -185,13 +182,13 @@ const Game = () => {
           
           <div className="space-y-4 md:space-y-6">
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-blue))]' : 'bg-primary/10'}`}>
-              <p className={`text-lg md:text-2xl text-center font-semibold ${theme === 'lcars' ? 'text-black' : ''}`}>
+              <p className={`text-lg md:text-2xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
                 {currentQuestion?.question}
               </p>
             </Card>
 
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-pink))]' : 'bg-secondary/10'}`}>
-              <p className={`text-base md:text-xl text-center font-semibold ${theme === 'lcars' ? 'text-black' : ''}`}>
+              <p className={`text-base md:text-xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
                 {currentQuestion?.answer}
               </p>
             </Card>
