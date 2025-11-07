@@ -1,12 +1,39 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, Users, Upload } from 'lucide-react';
+import { Trophy, Users, Upload, Play, Trash2, Clock } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useQuiz } from '@/contexts/QuizContext';
+import { getSavedGames, deleteGame, SavedGame } from '@/lib/gameStorage';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 const Index = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { loadSavedGame } = useQuiz();
+  const [savedGames, setSavedGames] = useState<SavedGame[]>([]);
+
+  useEffect(() => {
+    setSavedGames(getSavedGames());
+  }, []);
+
+  const handleLoadGame = (gameName: string) => {
+    const success = loadSavedGame(gameName);
+    if (success) {
+      toast.success('Partita caricata!');
+      navigate('/game');
+    } else {
+      toast.error('Errore nel caricamento della partita');
+    }
+  };
+
+  const handleDeleteGame = (gameName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteGame(gameName);
+    setSavedGames(getSavedGames());
+    toast.success('Partita eliminata');
+  };
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 ${theme}`}>
@@ -66,6 +93,50 @@ const Index = () => {
         >
           Inizia Nuovo Gioco
         </Button>
+
+        {savedGames.length > 0 && (
+          <div className="space-y-4 mt-8">
+            <h3 className="font-semibold text-lg text-center">Partite Salvate</h3>
+            <div className="grid gap-3 max-h-80 overflow-y-auto">
+              {savedGames.map((game) => (
+                <Card
+                  key={game.id}
+                  className="p-4 flex items-center justify-between hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => handleLoadGame(game.gameName)}
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <Clock className="h-5 w-5 text-primary flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{game.gameName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(game.savedAt).toLocaleDateString('it-IT')} {new Date(game.savedAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - {game.teams.length} squadre
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLoadGame(game.gameName);
+                      }}
+                    >
+                      <Play className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => handleDeleteGame(game.gameName, e)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

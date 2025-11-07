@@ -12,11 +12,12 @@ import { Input } from '@/components/ui/input';
 
 const UploadPage = () => {
   const navigate = useNavigate();
-  const { setQuizData, teams } = useQuiz();
+  const { setQuizData, teams, setGameName } = useQuiz();
   const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState<string>('');
   const [quizTitle, setQuizTitle] = useState<string>('');
+  const [gameName, setGameNameInput] = useState<string>('');
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,11 +38,16 @@ const UploadPage = () => {
       // Ask for title if user wants to save
       const title = quizTitle || file.name.replace('.xlsx', '').replace('.xls', '');
       
+      // Create game name with date and custom name
+      const today = new Date().toLocaleDateString('it-IT');
+      const finalGameName = gameName ? `${today} - ${gameName}` : `${today} - ${title}`;
+      
       // Save to localStorage
       saveQuizFile(title, data);
       setSavedQuizzes(getSavedQuizzes());
       
       setQuizData(data);
+      setGameName(finalGameName);
       toast.success('File caricato e salvato con successo!');
       setTimeout(() => navigate('/game'), 500);
     } catch (error) {
@@ -118,6 +124,12 @@ const UploadPage = () => {
               placeholder="Titolo del quiz (opzionale)"
               value={quizTitle}
               onChange={(e) => setQuizTitle(e.target.value)}
+              className="text-center"
+            />
+            <Input
+              placeholder="Nome della partita (opzionale)"
+              value={gameName}
+              onChange={(e) => setGameNameInput(e.target.value)}
               className="text-center"
             />
           </div>

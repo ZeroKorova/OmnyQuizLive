@@ -1,14 +1,19 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Team, QuizData } from '@/types/quiz';
+import { saveGame, loadGame, SavedGame } from '@/lib/gameStorage';
 
 interface QuizContextType {
   teams: Team[];
   setTeams: (teams: Team[]) => void;
   quizData: QuizData | null;
   setQuizData: (data: QuizData) => void;
+  gameName: string;
+  setGameName: (name: string) => void;
   updateTeamScore: (teamId: number, points: number) => void;
   markQuestionAnswered: (categoryIndex: number, questionIndex: number, teamId: number | null, isCorrect: boolean, customScore?: number) => void;
   resetGame: () => void;
+  saveCurrentGame: () => void;
+  loadSavedGame: (gameName: string) => boolean;
 }
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
@@ -16,6 +21,7 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const [gameName, setGameName] = useState<string>('');
 
   const updateTeamScore = (teamId: number, points: number) => {
     setTeams(prev => 
@@ -42,6 +48,24 @@ export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const resetGame = () => {
     setTeams([]);
     setQuizData(null);
+    setGameName('');
+  };
+
+  const saveCurrentGame = () => {
+    if (quizData && teams.length > 0 && gameName) {
+      saveGame(gameName, teams, quizData);
+    }
+  };
+
+  const loadSavedGame = (name: string): boolean => {
+    const savedGame = loadGame(name);
+    if (savedGame) {
+      setTeams(savedGame.teams);
+      setQuizData(savedGame.quizData);
+      setGameName(savedGame.gameName);
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -50,9 +74,13 @@ export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setTeams, 
       quizData, 
       setQuizData,
+      gameName,
+      setGameName,
       updateTeamScore,
       markQuestionAnswered,
-      resetGame
+      resetGame,
+      saveCurrentGame,
+      loadSavedGame
     }}>
       {children}
     </QuizContext.Provider>

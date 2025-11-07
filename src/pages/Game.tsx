@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trophy, Home, X, Check, Palette, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 
 const Game = () => {
   const navigate = useNavigate();
-  const { teams, quizData, updateTeamScore, markQuestionAnswered } = useQuiz();
+  const { teams, quizData, updateTeamScore, markQuestionAnswered, saveCurrentGame } = useQuiz();
   const { theme, toggleTheme } = useTheme();
   const [selectedQuestion, setSelectedQuestion] = useState<{
     categoryIndex: number;
@@ -22,6 +23,16 @@ const Game = () => {
   const [timer, setTimer] = useState(100);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hasPlayedBeepRef = useRef(false);
+
+  // Auto-save every 40 seconds
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      saveCurrentGame();
+      toast.success('Partita salvata automaticamente');
+    }, 40000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [saveCurrentGame]);
 
   useEffect(() => {
     if (selectedQuestion) {
