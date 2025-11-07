@@ -43,7 +43,7 @@ const Game = () => {
   }, [selectedQuestion]);
 
   useEffect(() => {
-    if (timer <= 10 && timer > 0 && selectedQuestion && !hasPlayedBeepRef.current) {
+    if (timer <= 10 && timer > 0 && selectedQuestion) {
       playBeep();
     }
   }, [timer, selectedQuestion]);
@@ -68,10 +68,6 @@ const Game = () => {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.1);
-
-    if (timer === 10) {
-      hasPlayedBeepRef.current = true;
-    }
   };
 
   if (!quizData) {
