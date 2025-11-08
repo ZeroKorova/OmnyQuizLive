@@ -191,7 +191,7 @@ const Game = () => {
                   return (
                     <Card
                       key={questionIndex}
-                      className={`p-3 md:p-4 lg:p-6 text-center cursor-pointer transition-all relative hover:scale-105 hover:shadow-lg ${
+                      className={`p-3 md:p-4 lg:p-6 flex items-center justify-center text-center cursor-pointer transition-all relative hover:scale-105 hover:shadow-lg ${
                         question.answered ? 'opacity-70' : ''
                       } ${theme === 'lcars' ? 'rounded-full' : ''}`}
                       onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
