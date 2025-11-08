@@ -226,6 +226,17 @@ const Game = () => {
             ))}
           </div>
         </div>
+
+        {/* Categories Footer - Scrollable */}
+        <div className="overflow-x-auto">
+          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
+            {quizData.categories.map((category, categoryIndex) => (
+              <Card key={categoryIndex} className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold">
+                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight" style={{ wordBreak: 'break-word' }}>{category}</h3>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3 justify-center pt-4">
