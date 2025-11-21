@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trophy, Home, X, Check, Palette, Clock } from 'lucide-react';
+import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+
 
 const Game = () => {
   const navigate = useNavigate();
@@ -20,6 +22,12 @@ const Game = () => {
   } | null>(null);
   const [showHomeConfirm, setShowHomeConfirm] = useState(false);
   const [showSecondConfirm, setShowSecondConfirm] = useState(false);
+  const [malusDialog, setMalusDialog] = useState<{ isOpen: boolean; teamId: number | null; teamName: string }>({
+    isOpen: false,
+    teamId: null,
+    teamName: '',
+  });
+  const [malusScore, setMalusScore] = useState<string>('');
   const [timer, setTimer] = useState(100);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hasPlayedBeepRef = useRef(false);
@@ -28,8 +36,7 @@ const Game = () => {
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       saveCurrentGame();
-      toast.success('Partita salvata automaticamente');
-    }, 40000);
+    }, 15000);
 
     return () => clearInterval(autoSaveInterval);
   }, [saveCurrentGame]);
@@ -38,7 +45,7 @@ const Game = () => {
     if (selectedQuestion) {
       setTimer(100);
       hasPlayedBeepRef.current = false;
-      
+
       const interval = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
@@ -63,20 +70,20 @@ const Game = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    
+
     const audioContext = audioContextRef.current;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     oscillator.frequency.value = 800;
     oscillator.type = 'sine';
-    
+
     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
+
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.1);
   };
@@ -90,6 +97,11 @@ const Game = () => {
     ? quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex]
     : null;
 
+  const shuffledOptions = useMemo(() => {
+    if (!currentQuestion?.options) return [];
+    return [...currentQuestion.options].sort(() => Math.random() - 0.5);
+  }, [currentQuestion]);
+
   const handleQuestionClick = (categoryIndex: number, questionIndex: number) => {
     setSelectedQuestion({ categoryIndex, questionIndex });
   };
@@ -102,10 +114,22 @@ const Game = () => {
     }
   };
 
-  const handleMalusAnswer = (teamId: number, customScore: number) => {
-    if (selectedQuestion && currentQuestion) {
-      updateTeamScore(teamId, customScore);
-      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, teamId, true, customScore);
+  const adjustMalus = (amount: number) => {
+    const current = parseInt(malusScore) || 0;
+    setMalusScore((current + amount).toString());
+  };
+
+  const handleMalusClick = (teamId: number, teamName: string) => {
+    setMalusDialog({ isOpen: true, teamId, teamName });
+    setMalusScore('');
+  };
+
+  const confirmMalus = () => {
+    if (malusDialog.teamId && selectedQuestion && currentQuestion) {
+      const score = parseInt(malusScore) || 0;
+      updateTeamScore(malusDialog.teamId, score);
+      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, malusDialog.teamId, true, score);
+      setMalusDialog({ isOpen: false, teamId: null, teamName: '' });
       setSelectedQuestion(null);
     }
   };
@@ -168,74 +192,56 @@ const Game = () => {
         ))}
       </div>
 
-      <div className="space-y-4">
-        {/* Categories Header - Scrollable */}
-        <div className="overflow-x-auto">
-          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
-            {quizData.categories.map((category, categoryIndex) => (
-              <Card key={categoryIndex} className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold">
-                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight" style={{ wordBreak: 'break-word' }}>{category}</h3>
+      <div className="flex justify-center w-full overflow-x-auto pb-4">
+        <div className="flex gap-3 md:gap-4 min-w-max px-4">
+          {quizData.categories.map((category, categoryIndex) => (
+            <div key={categoryIndex} className="flex flex-col gap-3 md:gap-4 w-[100px] md:w-[150px]">
+              {/* Category Header */}
+              <Card className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold h-[60px] flex items-center justify-center">
+                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight line-clamp-2" style={{ wordBreak: 'break-word' }}>
+                  {category}
+                </h3>
               </Card>
-            ))}
-          </div>
-        </div>
 
-        {/* Questions Grid - Scrollable */}
-        <div className="overflow-x-auto">
-          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
-            {quizData.categories.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="space-y-2 md:space-y-3">
-                {[...quizData.questions[categoryIndex]].reverse().map((question, reversedIndex) => {
-                  const questionIndex = quizData.questions[categoryIndex].length - 1 - reversedIndex;
-                  const answeredTeam = question.answeredBy ? teams.find(t => t.id === question.answeredBy) : null;
-                  return (
-                    <Card
-                      key={questionIndex}
-                      className={`p-3 md:p-4 lg:p-6 flex items-center justify-center text-center cursor-pointer transition-all relative hover:scale-105 hover:shadow-lg ${
-                        question.answered ? 'opacity-70' : ''
+              {/* Questions */}
+              {[...quizData.questions[categoryIndex]].reverse().map((question, reversedIndex) => {
+                const questionIndex = quizData.questions[categoryIndex].length - 1 - reversedIndex;
+                const answeredTeam = question.answeredBy ? teams.find(t => t.id === question.answeredBy) : null;
+                return (
+                  <Card
+                    key={questionIndex}
+                    className={`p-3 md:p-4 lg:p-6 flex items-center justify-center text-center cursor-pointer transition-all relative hover:scale-105 hover:shadow-lg ${question.answered ? 'opacity-70' : ''
                       } ${theme === 'lcars' ? 'rounded-full' : ''}`}
-                      onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
-                      style={{
-                        backgroundColor: answeredTeam 
-                          ? `hsl(var(--${answeredTeam.color}))` 
-                          : question.answered 
-                            ? 'hsl(var(--muted))' 
-                            : theme === 'lcars' 
-                              ? 'black' 
-                              : 'hsl(var(--card))',
-                      }}
-                    >
-                      <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
-                        {question.customScore !== undefined ? (
-                          <span className="text-yellow-500">
-                            {question.customScore > 0 ? '+' : ''}{question.customScore}
-                          </span>
-                        ) : (
-                          question.value
-                        )}
-                      </p>
-                      {question.answered && question.answeredCorrectly === false && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <X className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-black opacity-80" strokeWidth={4} />
-                        </div>
+                    onClick={() => handleQuestionClick(categoryIndex, questionIndex)}
+                    style={{
+                      backgroundColor: answeredTeam
+                        ? `hsl(var(--${answeredTeam.color}))`
+                        : question.answered
+                          ? 'hsl(var(--muted))'
+                          : theme === 'lcars'
+                            ? 'black'
+                            : 'hsl(var(--card))',
+                    }}
+                  >
+                    <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
+                      {question.customScore !== undefined ? (
+                        <span className="text-yellow-500">
+                          {question.customScore > 0 ? '+' : ''}{question.customScore}
+                        </span>
+                      ) : (
+                        question.value
                       )}
-                    </Card>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Categories Footer - Scrollable */}
-        <div className="overflow-x-auto">
-          <div className="grid gap-3 md:gap-4 min-w-max" style={{ gridTemplateColumns: `repeat(${quizData.categories.length}, minmax(100px, 150px))` }}>
-            {quizData.categories.map((category, categoryIndex) => (
-              <Card key={categoryIndex} className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold">
-                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight" style={{ wordBreak: 'break-word' }}>{category}</h3>
-              </Card>
-            ))}
-          </div>
+                    </p>
+                    {question.answered && question.answeredCorrectly === false && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <X className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-black opacity-80" strokeWidth={4} />
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -254,51 +260,63 @@ const Game = () => {
           </DialogHeader>
 
           {/* Timer */}
-          <div className={`flex items-center justify-center gap-3 p-4 rounded-lg ${
-            theme === 'lcars' 
-              ? 'bg-[hsl(var(--lcars-orange))]' 
-              : 'bg-primary/10'
-          }`}>
-            <Clock className={`h-6 w-6 ${
-              theme === 'lcars' ? 'text-black' : 'text-primary'
-            } ${timer <= 10 ? 'animate-pulse' : ''}`} />
+          <div className={`flex items-center justify-center gap-3 p-4 rounded-lg ${theme === 'lcars'
+            ? 'bg-[hsl(var(--lcars-orange))]'
+            : 'bg-primary/10'
+            }`}>
+            <Clock className={`h-6 w-6 ${theme === 'lcars' ? 'text-black' : 'text-primary'
+              } ${timer <= 10 ? 'animate-pulse' : ''}`} />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <span className={`text-lg font-bold ${
-                  theme === 'lcars' ? 'text-black' : 'text-primary'
-                } ${timer <= 10 ? 'animate-pulse' : ''}`}>
+                <span className={`text-lg font-bold ${theme === 'lcars' ? 'text-black' : 'text-primary'
+                  } ${timer <= 10 ? 'animate-pulse' : ''}`}>
                   {timer}s
                 </span>
-                <span className={`text-sm ${
-                  theme === 'lcars' ? 'text-black/70' : 'text-muted-foreground'
-                }`}>
+                <span className={`text-sm ${theme === 'lcars' ? 'text-black/70' : 'text-muted-foreground'
+                  }`}>
                   {Math.round((timer / 100) * 100)}%
                 </span>
               </div>
               {theme === 'lcars' ? (
                 <div className="w-full h-3 bg-black rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full transition-all duration-1000 ${
-                      timer <= 10 ? 'bg-[hsl(var(--lcars-red))]' : 'bg-[hsl(var(--lcars-blue))]'
-                    }`}
+                  <div
+                    className={`h-full transition-all duration-1000 ${timer <= 10 ? 'bg-[hsl(var(--lcars-red))]' : 'bg-[hsl(var(--lcars-blue))]'
+                      }`}
                     style={{ width: `${(timer / 100) * 100}%` }}
                   />
                 </div>
               ) : (
-                <Progress 
-                  value={(timer / 100) * 100} 
+                <Progress
+                  value={(timer / 100) * 100}
                   className={`h-3 ${timer <= 10 ? '[&>div]:bg-destructive' : ''}`}
                 />
               )}
             </div>
           </div>
-          
+
           <div className="space-y-4 md:space-y-6">
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-blue))]' : 'bg-primary/10'}`}>
               <p className={`text-lg md:text-2xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
                 {currentQuestion?.question}
               </p>
             </Card>
+
+            {/* Options Display */}
+            {currentQuestion?.options && currentQuestion.options.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {shuffledOptions.map((option, index) => (
+                  <Card
+                    key={index}
+                    className={`p-4 text-center flex items-center justify-center min-h-[80px] ${theme === 'lcars'
+                      ? 'bg-black border-[hsl(var(--lcars-blue))] text-[hsl(var(--lcars-blue))]'
+                      : 'bg-muted/50'
+                      }`}
+                  >
+                    <p className="text-lg font-medium">{option}</p>
+                  </Card>
+                ))}
+              </div>
+            )}
 
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-pink))]' : 'bg-secondary/10'}`}>
               <p className={`text-base md:text-xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
@@ -323,20 +341,15 @@ const Game = () => {
                         <span className="text-xs md:text-sm">{team.name}</span>
                       </Button>
                       <Button
-                        onClick={() => {
-                          const customScore = prompt(`Inserisci il punteggio per ${team.name} (può essere negativo):`, '0');
-                          if (customScore !== null) {
-                            handleMalusAnswer(team.id, parseInt(customScore) || 0);
-                          }
-                        }}
+                        onClick={() => handleMalusClick(team.id, team.name)}
                         variant="outline"
                         className={`w-full h-auto py-2 md:py-3 text-xs md:text-sm font-semibold border-2 ${theme === 'lcars' ? 'rounded-full' : ''}`}
-                        style={{ 
+                        style={{
                           borderColor: `hsl(var(--${team.color}))`,
                           color: `hsl(var(--${team.color}))`
                         }}
                       >
-                        Malus
+                        Malus / Bonus
                       </Button>
                     </div>
                   ))}
@@ -354,7 +367,7 @@ const Game = () => {
                       key={team.id}
                       onClick={() => handleWrongAnswer(team.id)}
                       className={`w-full h-auto py-3 md:py-4 border-2 font-semibold relative text-white ${theme === 'lcars' ? 'rounded-full' : ''}`}
-                      style={{ 
+                      style={{
                         backgroundColor: `hsl(var(--${team.color}))`,
                         borderColor: `hsl(var(--${team.color}))`
                       }}
@@ -406,7 +419,74 @@ const Game = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+
+      <Dialog open={malusDialog.isOpen} onOpenChange={(open) => !open && setMalusDialog(prev => ({ ...prev, isOpen: false }))}>
+        <DialogContent className={`${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}>
+          <DialogHeader>
+            <DialogTitle className={theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}>
+              Assegna Punteggio a {malusDialog.teamName}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Inserisci il punteggio da assegnare (usa il meno per i malus, es. -50)
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 shrink-0"
+                  onClick={() => adjustMalus(-1)}
+                >
+                  <Minus className="h-6 w-6" />
+                </Button>
+                <Input
+                  type="number"
+                  value={malusScore}
+                  onChange={(e) => setMalusScore(e.target.value)}
+                  placeholder="0"
+                  className="text-lg h-12 text-center"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') confirmMalus();
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 shrink-0"
+                  onClick={() => adjustMalus(1)}
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </div>
+              <div className="flex justify-center gap-2 mt-2 flex-wrap">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((val) => (
+                  <Button
+                    key={val}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => adjustMalus(val)}
+                    className="min-w-[3rem]"
+                  >
+                    {val > 0 ? '+' : ''}{val}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setMalusDialog(prev => ({ ...prev, isOpen: false }))}>
+                Annulla
+              </Button>
+              <Button onClick={confirmMalus}>
+                Conferma
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div >
   );
 };
 

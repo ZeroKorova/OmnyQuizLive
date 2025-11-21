@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Team, QuizData } from '@/types/quiz';
 import { saveGame, loadGame, SavedGame } from '@/lib/gameStorage';
 
@@ -19,13 +19,26 @@ interface QuizContextType {
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
 export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<Team[]>(() => {
+    const saved = sessionStorage.getItem('omni-quiz-current-teams');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const [gameName, setGameName] = useState<string>('');
+  const [gameName, setGameName] = useState<string>(() => {
+    return sessionStorage.getItem('omni-quiz-current-game-name') || '';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('omni-quiz-current-teams', JSON.stringify(teams));
+  }, [teams]);
+
+  useEffect(() => {
+    sessionStorage.setItem('omni-quiz-current-game-name', gameName);
+  }, [gameName]);
 
   const updateTeamScore = (teamId: number, points: number) => {
-    setTeams(prev => 
-      prev.map(team => 
+    setTeams(prev =>
+      prev.map(team =>
         team.id === teamId ? { ...team, score: team.score + points } : team
       )
     );
@@ -69,10 +82,10 @@ export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <QuizContext.Provider value={{ 
-      teams, 
-      setTeams, 
-      quizData, 
+    <QuizContext.Provider value={{
+      teams,
+      setTeams,
+      quizData,
       setQuizData,
       gameName,
       setGameName,

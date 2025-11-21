@@ -14,6 +14,7 @@ export interface Question {
   answeredBy: number | null;
   answeredCorrectly: boolean | null;
   customScore?: number;
+  options?: string[];
 }
 
 export interface QuizData {

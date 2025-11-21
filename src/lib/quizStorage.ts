@@ -31,3 +31,23 @@ export const deleteQuizFile = (id: string): void => {
   const filtered = savedQuizzes.filter(quiz => quiz.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 };
+
+
+
+const INITIALIZED_KEY = 'omni-quiz-initialized';
+
+export const isLibraryInitialized = (): boolean => {
+  return localStorage.getItem(INITIALIZED_KEY) === 'true';
+};
+
+export const initializeLibrary = (quizzes: SavedQuiz[]): void => {
+  const current = getSavedQuizzes();
+  const merged = [...current, ...quizzes];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+  localStorage.setItem(INITIALIZED_KEY, 'true');
+};
+
+export const resetLibrary = (): void => {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(INITIALIZED_KEY);
+};

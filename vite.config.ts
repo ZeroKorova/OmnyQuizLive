@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(), 
+    react(),
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#1a1a1a',
         background_color: '#ffffff',
         display: 'standalone',
-        orientation: 'landscape',
+        orientation: 'any',
         start_url: '/',
         icons: [
           {

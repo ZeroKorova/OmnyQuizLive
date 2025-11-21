@@ -49,21 +49,21 @@ const Leaderboard = () => {
                 boxShadow: index === 0 ? `0 0 20px hsl(var(--${team.color}) / 0.3)` : 'none',
               }}
             >
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3 flex-1">
-                  <span className="text-4xl font-bold w-12">{index + 1}</span>
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                <div className="flex items-center gap-3 flex-1 w-full md:w-auto">
+                  <span className="text-3xl md:text-4xl font-bold w-8 md:w-12 text-center">{index + 1}</span>
                   {getMedalIcon(index)}
                   <div
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8 rounded-full shrink-0"
                     style={{ backgroundColor: `hsl(var(--${team.color}))` }}
                   />
-                  <div className="flex-1">
-                    <p className="text-2xl font-bold">{team.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xl md:text-2xl font-bold truncate">{team.name}</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-center md:text-right w-full md:w-auto">
                   <p
-                    className="text-5xl font-bold"
+                    className="text-4xl md:text-5xl font-bold"
                     style={{ color: `hsl(var(--${team.color}))` }}
                   >
                     {team.score}
@@ -80,17 +80,9 @@ const Leaderboard = () => {
             variant="hero"
             size="lg"
             onClick={() => navigate('/game')}
-            className="flex-1"
+            className="w-full"
           >
             Continua il Gioco
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => navigate('/')}
-            className="flex-1"
-          >
-            Nuovo Gioco
           </Button>
         </div>
       </Card>
