@@ -10,9 +10,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 
 const Game = () => {
+  useWakeLock();
   const navigate = useNavigate();
   const { teams, quizData, updateTeamScore, markQuestionAnswered, saveCurrentGame } = useQuiz();
   const { theme, toggleTheme } = useTheme();
