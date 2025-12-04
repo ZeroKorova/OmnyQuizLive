@@ -152,6 +152,10 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html, body {
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-background text-foreground;
   }

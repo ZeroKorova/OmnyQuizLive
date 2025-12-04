@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  base: "./",
   plugins: [
     react(),
     mode === "development" && componentTagger(),
@@ -17,14 +18,15 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: {
-        name: 'OMNI QUIZ - Sistema Quiz a Squadre',
-        short_name: 'OMNI QUIZ',
+        name: 'Omniquiz',
+        short_name: 'Omniquiz',
         description: 'Sistema interattivo di quiz a squadre con caricamento dinamico da file Excel, gestione punteggi e classifica in tempo reale',
         theme_color: '#1a1a1a',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/',
+        start_url: '.',
+        scope: '.',
         icons: [
           {
             src: '/pwa-192x192.png',
@@ -47,7 +49,8 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        cacheId: 'omniquiz-v2',
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,xlsx}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

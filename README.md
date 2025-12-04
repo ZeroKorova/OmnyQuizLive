@@ -1,4 +1,4 @@
-# OMNI QUIZ - Sistema Interattivo per Quiz a Squadre
+# Omniquiz
 
 Un'applicazione web per gestire quiz a squadre con tabellone interattivo, punteggi e temi personalizzabili (incluso tema LCARS stile Star Trek).
 

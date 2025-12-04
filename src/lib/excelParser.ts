@@ -62,7 +62,36 @@ export const parseExcelFile = (file: File): Promise<QuizData> => {
       }
     };
 
-    reader.onerror = () => reject(new Error('Errore nella lettura del file'));
-    reader.readAsArrayBuffer(file);
+    reader.onerror = (e) => {
+      console.error('FileReader Error:', e);
+      reject(new Error('Errore nella lettura del file: ' + (reader.error?.message || 'Errore sconosciuto')));
+    };
+
+    const readFile = (method: 'arrayBuffer' | 'binaryString') => {
+      try {
+        if (method === 'arrayBuffer') {
+          reader.readAsArrayBuffer(file);
+        } else {
+          reader.readAsBinaryString(file);
+        }
+      } catch (e) {
+        console.error('FileReader Exception:', e);
+        reject(new Error('Impossibile avviare la lettura del file. Prova a copiare il file nella memoria interna del dispositivo.'));
+      }
+    };
+
+    reader.onerror = (e) => {
+      console.error('FileReader Error:', e);
+      // If ArrayBuffer failed, try BinaryString as fallback
+      if (reader.error?.name === 'NotReadableError' || e.type === 'error') {
+        // We can't easily retry here because the reader is in error state, 
+        // but we can reject with a specific message.
+        reject(new Error('Errore di permessi. SU ANDROID: Copia il file nella cartella "Download" o "Documenti" interna e riprova. Non aprirlo da "Recenti" o "Drive".'));
+      } else {
+        reject(new Error('Errore nella lettura del file: ' + (reader.error?.message || 'Errore sconosciuto')));
+      }
+    };
+
+    readFile('arrayBuffer');
   });
 };

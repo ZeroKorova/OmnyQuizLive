@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'white' | 'lcars';
 
@@ -16,6 +16,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const toggleTheme = () => {
     setTheme(prev => prev === 'white' ? 'lcars' : 'white');
   };
+
+  useEffect(() => {
+    if (theme === 'lcars') {
+      document.body.classList.add('lcars');
+    } else {
+      document.body.classList.remove('lcars');
+    }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>

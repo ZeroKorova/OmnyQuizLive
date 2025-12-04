@@ -110,6 +110,12 @@ const UploadPage = () => {
 
   const handleLoadSaved = (quiz: SavedQuiz) => {
     setQuizData(quiz.data);
+
+    // Set game name for autosave
+    const today = new Date().toLocaleDateString('it-IT');
+    const finalGameName = gameName ? `${today} - ${gameName}` : `${today} - ${quiz.title}`;
+    setGameName(finalGameName);
+
     toast.success(`Quiz "${quiz.title}" caricato!`);
     setTimeout(() => navigate('/game'), 500);
   };
@@ -230,6 +236,17 @@ const UploadPage = () => {
             </div>
           </div>
         )}
+
+        {/* Game Name Input */}
+        <div className="max-w-md mx-auto space-y-2">
+          <label className="text-sm font-medium ml-1">Nome della Partita (Opzionale)</label>
+          <Input
+            placeholder="Es. Partita di Natale"
+            value={gameName}
+            onChange={(e) => setGameNameInput(e.target.value)}
+            className="text-center text-lg"
+          />
+        </div>
 
         {/* Unified Quiz Library */}
         <div className="space-y-4">

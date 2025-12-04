@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { useQuiz } from '@/contexts/QuizContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Team } from '@/types/quiz';
-import { Minus, Plus, Edit2, Check, Palette } from 'lucide-react';
+import { Minus, Plus, Edit2, Check, Palette, ArrowLeft } from 'lucide-react';
 
 const TEAM_COLORS = [
   'team-1', 'team-2', 'team-3', 'team-4', 'team-5', 'team-6',
@@ -27,7 +27,7 @@ const Setup = () => {
   const handleNumTeamsChange = (delta: number) => {
     const newNum = Math.max(1, Math.min(30, numTeams + delta));
     setNumTeams(newNum);
-    
+
     const newNames = [...teamNames];
     if (newNum > teamNames.length) {
       for (let i = teamNames.length; i < newNum; i++) {
@@ -148,14 +148,25 @@ const Setup = () => {
           </div>
         </div>
 
-        <Button
-          variant="hero"
-          size="lg"
-          onClick={handleContinue}
-          className="w-full"
-        >
-          Continua
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => navigate('/')}
+            className="flex-1"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Indietro
+          </Button>
+          <Button
+            variant="hero"
+            size="lg"
+            onClick={handleContinue}
+            className="flex-1"
+          >
+            Continua
+          </Button>
+        </div>
       </Card>
     </div>
   );

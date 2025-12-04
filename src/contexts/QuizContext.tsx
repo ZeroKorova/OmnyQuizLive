@@ -36,6 +36,13 @@ export const QuizProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sessionStorage.setItem('omni-quiz-current-game-name', gameName);
   }, [gameName]);
 
+  // Event-driven autosave: Save whenever critical state changes
+  useEffect(() => {
+    if (quizData && teams.length > 0 && gameName) {
+      saveGame(gameName, teams, quizData);
+    }
+  }, [teams, quizData, gameName]);
+
   const updateTeamScore = (teamId: number, points: number) => {
     setTeams(prev =>
       prev.map(team =>

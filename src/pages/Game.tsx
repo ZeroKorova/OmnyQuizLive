@@ -7,7 +7,7 @@ import { useQuiz } from '@/contexts/QuizContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus } from 'lucide-react';
+import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus, Dices } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -35,13 +35,7 @@ const Game = () => {
   const hasPlayedBeepRef = useRef(false);
 
   // Auto-save every 40 seconds
-  useEffect(() => {
-    const autoSaveInterval = setInterval(() => {
-      saveCurrentGame();
-    }, 15000);
-
-    return () => clearInterval(autoSaveInterval);
-  }, [saveCurrentGame]);
+  // Auto-save logic is now handled in QuizContext (event-driven)
 
   useEffect(() => {
     if (selectedQuestion) {
@@ -146,7 +140,7 @@ const Game = () => {
 
   const TeamScoreCard = ({ team }: { team: typeof teams[0] }) => (
     <Card
-      className="px-4 py-3 flex items-center gap-3 min-w-[180px]"
+      className="px-1 py-1 md:px-4 md:py-3 flex items-center gap-1 md:gap-3 min-w-[100px] md:min-w-[180px]"
       style={{ borderColor: `hsl(var(--${team.color}))`, borderWidth: '2px' }}
     >
       <div
@@ -154,8 +148,8 @@ const Game = () => {
         style={{ backgroundColor: `hsl(var(--${team.color}))` }}
       />
       <div className="flex-1">
-        <p className="font-semibold text-sm">{team.name}</p>
-        <p className="text-xl font-bold" style={{ color: `hsl(var(--${team.color}))` }}>
+        <p className="font-semibold text-[0.65rem] md:text-sm truncate">{team.name}</p>
+        <p className="text-base md:text-xl font-bold leading-tight" style={{ color: `hsl(var(--${team.color}))` }}>
           {team.score}
         </p>
       </div>
@@ -163,7 +157,7 @@ const Game = () => {
   );
 
   return (
-    <div className={`min-h-screen p-4 space-y-6 ${theme === 'lcars' ? 'bg-black' : ''}`}>
+    <div className={`min-h-screen flex flex-col p-4 space-y-6 ${theme === 'lcars' ? 'bg-black' : ''}`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
@@ -186,6 +180,9 @@ const Game = () => {
           <Trophy className="mr-2 h-4 w-4" />
           Classifica
         </Button>
+        <Button variant="outline" onClick={() => navigate('/roulette')} className="ml-2 font-bold" title="Sorteggio">
+          DADI?
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-3 justify-center">
@@ -194,13 +191,13 @@ const Game = () => {
         ))}
       </div>
 
-      <div className="flex justify-center w-full overflow-x-auto pb-4">
-        <div className="flex gap-3 md:gap-4 min-w-max px-4">
+      <div className="flex w-full pb-4">
+        <div className="flex gap-2 md:gap-4 px-2 md:px-4 m-auto">
           {quizData.categories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="flex flex-col gap-3 md:gap-4 w-[100px] md:w-[150px]">
+            <div key={categoryIndex} className="flex flex-col gap-2 md:gap-4 w-[75px] md:w-[150px]">
               {/* Category Header */}
-              <Card className="p-2 md:p-3 bg-primary text-primary-foreground text-center font-bold h-[60px] flex items-center justify-center">
-                <h3 className="text-[10px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight line-clamp-2" style={{ wordBreak: 'break-word' }}>
+              <Card className="p-1 md:p-3 bg-primary text-primary-foreground text-center font-bold h-[50px] md:h-[60px] flex items-center justify-center">
+                <h3 className="text-[9px] md:text-xs lg:text-sm uppercase break-words hyphens-auto leading-tight line-clamp-2" style={{ wordBreak: 'break-word' }}>
                   {category}
                 </h3>
               </Card>
@@ -225,6 +222,9 @@ const Game = () => {
                             : 'hsl(var(--card))',
                     }}
                   >
+                    <p className={`text-[0.6rem] md:text-xs uppercase mb-1 opacity-80 font-semibold truncate w-full px-1 ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : 'text-muted-foreground'}`}>
+                      {category}
+                    </p>
                     <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
                       {question.customScore !== undefined ? (
                         <span className="text-yellow-500">
@@ -254,9 +254,12 @@ const Game = () => {
       </div>
 
       <Dialog open={!!selectedQuestion} onOpenChange={() => setSelectedQuestion(null)}>
-        <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto ${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}>
+        <DialogContent
+          className={`max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto ${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}
+          style={{ fontSize: '1.5vw' }}
+        >
           <DialogHeader>
-            <DialogTitle className={`text-xl md:text-2xl ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}`}>
+            <DialogTitle className={`text-xl md:text-2xl ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}`} style={{ fontSize: '2vw' }}>
               {currentQuestion?.category} - {currentQuestion?.value} punti
             </DialogTitle>
           </DialogHeader>
