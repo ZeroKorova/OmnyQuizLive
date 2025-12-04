@@ -158,7 +158,7 @@ const Game = () => {
 
   return (
     <div className={`min-h-screen flex flex-col p-4 space-y-6 ${theme === 'lcars' ? 'bg-black' : ''}`}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => setShowHomeConfirm(true)}>
             <Home className="mr-2 h-4 w-4" />
@@ -255,11 +255,10 @@ const Game = () => {
 
       <Dialog open={!!selectedQuestion} onOpenChange={() => setSelectedQuestion(null)}>
         <DialogContent
-          className={`max-w-[95vw] w-[95vw] max-h-[90vh] overflow-y-auto ${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}
-          style={{ fontSize: '1.5vw' }}
+          className={`max-w-[95vw] md:max-w-4xl w-full max-h-[90vh] overflow-y-auto ${theme === 'lcars' ? 'bg-black border-[hsl(var(--lcars-orange))]' : ''}`}
         >
           <DialogHeader>
-            <DialogTitle className={`text-xl md:text-2xl ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}`} style={{ fontSize: '2vw' }}>
+            <DialogTitle className={`text-2xl md:text-3xl ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : ''}`}>
               {currentQuestion?.category} - {currentQuestion?.value} punti
             </DialogTitle>
           </DialogHeader>
@@ -301,7 +300,7 @@ const Game = () => {
 
           <div className="space-y-4 md:space-y-6">
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-blue))]' : 'bg-primary/10'}`}>
-              <p className={`text-lg md:text-2xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
+              <p className={`text-xl md:text-3xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
                 {currentQuestion?.question}
               </p>
             </Card>
@@ -324,7 +323,7 @@ const Game = () => {
             )}
 
             <Card className={`p-6 md:p-8 ${theme === 'lcars' ? 'bg-[hsl(var(--lcars-pink))]' : 'bg-secondary/10'}`}>
-              <p className={`text-base md:text-xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
+              <p className={`text-xl md:text-3xl text-center font-semibold ${theme === 'lcars' ? 'text-white' : ''}`}>
                 {currentQuestion?.answer}
               </p>
             </Card>
