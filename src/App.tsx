@@ -11,6 +11,7 @@ import Upload from "./pages/Upload";
 import Game from "./pages/Game";
 import Leaderboard from "./pages/Leaderboard";
 import Roulette from "./pages/Roulette";
+import Live from "./pages/Live";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/game" element={<Game />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/roulette" element={<Roulette />} />
+              <Route path="/live" element={<Live />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>
