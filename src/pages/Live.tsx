@@ -27,8 +27,10 @@ interface GameState {
         questions: {
             value: number;
             answered: boolean;
+            answered: boolean;
             answeredCorrectly?: boolean;
             answeredColor?: string | null;
+            customScore?: number;
         }[];
     }[];
     scores: { id: number; name: string; score: number; color: string }[];
@@ -85,9 +87,6 @@ export default function Live() {
             {/* Header */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 font-sans">
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-                        <Home className="w-6 h-6" />
-                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => setShowQr(true)} className="ml-2">
                         <QrCode className="h-6 w-6" />
                     </Button>
@@ -155,9 +154,7 @@ export default function Live() {
                                                         : theme === 'lcars'
                                                             ? 'black'
                                                             : 'hsl(var(--card))',
-                                                // Ensure uniform height if content is small, but use padding primarily like Game.tsx
-                                                // Adding minHeight to be safe against shrinking content
-                                                minHeight: '80px'
+                                                // Removed minHeight to match Game.tsx exactly
                                             }}
                                         >
                                             <p className={`text-[0.6rem] md:text-xs uppercase mb-1 opacity-80 font-semibold truncate w-full px-1 ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : 'text-muted-foreground'}`}>
@@ -165,8 +162,13 @@ export default function Live() {
                                             </p>
 
                                             <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
-                                                {/* Show value ALWAYS unless covered by X overlay? Game.tsx shows it underneath. */}
-                                                {q.value}
+                                                {q.customScore !== undefined ? (
+                                                    <span className="text-yellow-500">
+                                                        {q.customScore > 0 ? '+' : ''}{q.customScore}
+                                                    </span>
+                                                ) : (
+                                                    q.value
+                                                )}
                                             </p>
 
                                             {/* X Overlay for Wrong Answers */}

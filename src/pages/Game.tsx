@@ -118,7 +118,8 @@ const Game = () => {
           value: q.value,
           answered: q.answered ?? false,
           answeredCorrectly: q.answeredCorrectly ?? null,
-          answeredColor: team?.color ?? null
+          answeredColor: team?.color ?? null,
+          customScore: q.customScore ?? 0  // Firestore doesn't like undefined
         };
       })
     }));
