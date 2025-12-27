@@ -119,7 +119,7 @@ const Game = () => {
           answered: q.answered ?? false,
           answeredCorrectly: q.answeredCorrectly ?? null,
           answeredColor: team?.color ?? null,
-          customScore: q.customScore ?? 0  // Firestore doesn't like undefined
+          customScore: q.customScore ?? null  // Send null instead of 0 so strict checks work
         };
       })
     }));

@@ -162,7 +162,7 @@ export default function Live() {
                                             </p>
 
                                             <p className={`text-xl md:text-2xl lg:text-3xl font-bold ${theme === 'lcars' ? 'text-white' : ''}`}>
-                                                {q.customScore !== undefined ? (
+                                                {q.customScore !== undefined && q.customScore !== null ? (
                                                     <span className="text-yellow-500">
                                                         {q.customScore > 0 ? '+' : ''}{q.customScore}
                                                     </span>
