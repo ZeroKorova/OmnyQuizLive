@@ -1,6 +1,6 @@
 
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
@@ -39,7 +39,6 @@ interface GameState {
     lastEventTimestamp?: number;
     timer: number;
     lastEvent?: { type: 'CORRECT' | 'WRONG' | 'ADJUST'; teamId?: number; teamName?: string; amount?: number } | null;
-    rouletteActive?: boolean;
 }
 
 export default function Live() {
@@ -51,13 +50,6 @@ export default function Live() {
 
     // Popup State
     const [popup, setPopup] = useState<{ show: boolean; data: NonNullable<GameState['lastEvent']> | null }>({ show: false, data: null });
-
-    // Roulette refs
-    const teamWheelRef = useRef<SpinWheelRef>(null);
-    const categoryWheelRef = useRef<SpinWheelRef>(null);
-    const difficultyWheelRef = useRef<SpinWheelRef>(null);
-    const [rouletteTriggered, setRouletteTriggered] = useState(false);
-
 
     // Listen to Firebase game state changes
     useEffect(() => {
@@ -74,21 +66,6 @@ export default function Live() {
         });
         return () => unsubscribe();
     }, []);
-
-    // Auto-trigger roulette when activated
-    useEffect(() => {
-        if (gameState?.rouletteActive && !rouletteTriggered) {
-            setRouletteTriggered(true);
-            setTimeout(() => {
-                teamWheelRef.current?.spin();
-                categoryWheelRef.current?.spin();
-                difficultyWheelRef.current?.spin();
-            }, 500);
-        } else if (!gameState?.rouletteActive && rouletteTriggered) {
-            setRouletteTriggered(false);
-        }
-    }, [gameState?.rouletteActive, rouletteTriggered]);
-
 
     const triggerPopup = (event: NonNullable<GameState['lastEvent']>) => {
         setPopup({ show: true, data: event });
@@ -317,63 +294,6 @@ export default function Live() {
                     </p>
                 </DialogContent>
             </Dialog>
-
-            {/* Roulette Overlay */}
-            {gameState.rouletteActive && (
-                <div className="fixed inset-0 z-50 bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col items-center justify-center p-4">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-12 uppercase tracking-wider">
-                        SORTEGGIO IN CORSO
-                    </h1>
-
-                    <div className="relative flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto w-full">
-                        {/* Top Row: Team and Category */}
-                        <div className="flex justify-center gap-8 md:gap-32 w-full mb-12 md:mb-24 items-center">
-                            <SpinWheel
-                                ref={teamWheelRef}
-                                title="SQUADRA"
-                                items={teams.map(team => ({
-                                    label: team.name,
-                                    color: `hsl(var(--${team.color}))`,
-                                    id: team.id
-                                }))}
-                                onSpinEnd={(res) => console.log('Team selected:', res)}
-                                isActive={false}
-                                isSpinningAll={true}
-                            />
-                            <SpinWheel
-                                ref={categoryWheelRef}
-                                title="CATEGORIA"
-                                items={gameState.gridState?.map((col, index) => ({
-                                    label: col.category,
-                                    id: index
-                                })) || []}
-                                onSpinEnd={(res) => console.log('Category selected:', res)}
-                                isActive={false}
-                                isSpinningAll={true}
-                            />
-                        </div>
-
-                        {/* Bottom Row: Difficulty */}
-                        <div className="flex justify-center w-full">
-                            <SpinWheel
-                                ref={difficultyWheelRef}
-                                title="DIFFICOLTÀ"
-                                items={Array.from(new Set(
-                                    gameState.gridState?.flatMap(col =>
-                                        col.questions.map(q => q.value)
-                                    ) || []
-                                )).sort((a, b) => a - b).map(val => ({
-                                    label: val.toString(),
-                                    id: val
-                                }))}
-                                onSpinEnd={(res) => console.log('Difficulty selected:', res)}
-                                isActive={false}
-                                isSpinningAll={true}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
