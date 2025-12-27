@@ -10,6 +10,7 @@ import Setup from "./pages/Setup";
 import Upload from "./pages/Upload";
 import Game from "./pages/Game";
 import Leaderboard from "./pages/Leaderboard";
+import LeaderboardLive from "./pages/LeaderboardLive";
 import Roulette from "./pages/Roulette";
 import Live from "./pages/Live";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/upload" element={<Upload />} />
               <Route path="/game" element={<Game />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/leaderboard-live" element={<LeaderboardLive />} />
               <Route path="/roulette" element={<Roulette />} />
               <Route path="/live" element={<Live />} />
               <Route path="*" element={<NotFound />} />

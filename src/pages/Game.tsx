@@ -158,6 +158,23 @@ const Game = () => {
     }
   };
 
+  // Broadcast roulette state
+  const broadcastRouletteState = async (active: boolean) => {
+    try {
+      await setDoc(doc(db, "games", "current"), {
+        rouletteActive: active
+      }, { merge: true });
+    } catch (e) {
+      console.error("Roulette broadcast failed:", e);
+    }
+  };
+
+  const handleRouletteClick = async () => {
+    await broadcastRouletteState(true);
+    navigate('/roulette');
+  };
+
+
   // Sync when Question Selected
   useEffect(() => {
     if (selectedQuestion) {
@@ -302,7 +319,7 @@ const Game = () => {
           <Trophy className="mr-2 h-4 w-4" />
           Classifica
         </Button>
-        <Button variant="outline" onClick={() => navigate('/roulette')} className="ml-2 font-bold" title="Sorteggio">
+        <Button variant="outline" onClick={handleRouletteClick} className="ml-2 font-bold" title="Sorteggio">
           DADI?
         </Button>
         <Button variant="ghost" size="icon" onClick={() => setShowQr(true)} className="ml-2">
