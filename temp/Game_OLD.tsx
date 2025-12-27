@@ -7,10 +7,7 @@ import { useQuiz } from '@/contexts/QuizContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus, Dices, QrCode } from 'lucide-react';
-import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
-import QRCode from 'react-qr-code';
+import { Trophy, Home, X, Check, Palette, Clock, Plus, Minus, Dices } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -33,43 +30,9 @@ const Game = () => {
     teamName: '',
   });
   const [malusScore, setMalusScore] = useState<string>('');
-  const [showQr, setShowQr] = useState(false);
   const [timer, setTimer] = useState(100);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hasPlayedBeepRef = useRef(false);
-  const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
-  const shuffledOptionsRef = useRef<string[]>([])
-
-  // Update shuffled options when currentQuestion changes
-  const currentQuestion = useMemo(() => {
-    if (selectedQuestion && quizData) {
-      return {
-        category: quizData.categories[selectedQuestion.categoryIndex],
-        value: quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex].value,
-        question: quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex].question,
-        options: quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex].options,
-        answer: quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex].answer
-      };
-    }
-    return null;
-  }, [selectedQuestion, quizData]);
-
-  useEffect(() => {
-    if (currentQuestion?.options) {
-      // Shuffle options safely
-      const options = [...currentQuestion.options];
-      for (let i = options.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [options[i], options[j]] = [options[j], options[i]];
-      }
-      setShuffledOptions(options);
-      shuffledOptionsRef.current = options;
-    } else {
-      setShuffledOptions([]);
-      shuffledOptionsRef.current = [];
-    }
-  }, [currentQuestion]);
-
 
   // Auto-save every 40 seconds
   // Auto-save logic is now handled in QuizContext (event-driven)
@@ -97,76 +60,7 @@ const Game = () => {
     if (timer <= 10 && timer > 0 && selectedQuestion) {
       playBeep();
     }
-    // Broadcast timer progress occasionally (optional, but good for sync)
-    // We update 'status' mainly
   }, [timer, selectedQuestion]);
-
-  // Broadcast State Function
-  // Broadcast State Function
-  const broadcastState = async (
-    cQuestion: typeof selectedQuestion,
-    status: 'WAITING' | 'QUESTION' | 'ANSWER_REVEALED',
-    eventData: { type: 'CORRECT' | 'WRONG' | 'ADJUST'; teamId?: number; teamName?: string; amount?: number } | null = null
-  ) => {
-    // Calculate grid state (answered questions)
-    // We need to map the current quiz structure to find which have been answered
-    const gridState = quizData?.categories.map((cat, catIdx) => ({
-      category: cat,
-      questions: quizData.questions[catIdx].map((q, qIdx) => {
-        const team = q.answeredBy ? teams.find(t => t.id === q.answeredBy) : null;
-        return {
-          value: q.value,
-          answered: q.answered ?? false,
-          answeredCorrectly: q.answeredCorrectly ?? null,
-          answeredColor: team?.color ?? null,
-          customScore: q.customScore ?? null  // Send null instead of 0 so strict checks work
-        };
-      })
-    }));
-
-    const gameState = {
-      scores: teams,
-      currentQuestion: cQuestion && quizData ? {
-        category: quizData.categories[cQuestion.categoryIndex],
-        value: quizData.questions[cQuestion.categoryIndex][cQuestion.questionIndex].value,
-        question: quizData.questions[cQuestion.categoryIndex][cQuestion.questionIndex].question,
-        options: shuffledOptionsRef.current.length > 0 ? shuffledOptionsRef.current : quizData.questions[cQuestion.categoryIndex][cQuestion.questionIndex].options, // Use shuffled if avail
-      } : null,
-      timer: timer,
-      status: status,
-      lastEvent: eventData, // Now an object
-      lastEventTimestamp: Date.now(),
-      gridState: gridState // New field
-    };
-
-    // console.log("Broadcasting state:", status, eventData);
-    try {
-      // Race setDoc with a 5s timeout
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout scriittura DB (Firewall?)")), 5000)
-      );
-
-      await Promise.race([
-        setDoc(doc(db, "games", "current"), gameState),
-        timeoutPromise
-      ]);
-
-      // console.log("Broadcast success");
-    } catch (e) {
-      console.error("Broadcast failed:", e);
-      toast.error("Errore Sync: " + (e as Error).message);
-    }
-  };
-
-  // Sync when Question Selected
-  useEffect(() => {
-    if (selectedQuestion) {
-      broadcastState(selectedQuestion, 'QUESTION');
-    } else {
-      broadcastState(null, 'WAITING');
-    }
-  }, [selectedQuestion, quizData]); // Timer sync would be too heavy here, maybe just status
-
 
   const playBeep = () => {
     if (!audioContextRef.current) {
@@ -195,9 +89,14 @@ const Game = () => {
     return null;
   }
 
-  // Removed duplicate currentQuestion and shuffledOptions declarations
-  // They are now defined at the top of the component
+  const currentQuestion = selectedQuestion
+    ? quizData.questions[selectedQuestion.categoryIndex][selectedQuestion.questionIndex]
+    : null;
 
+  const shuffledOptions = useMemo(() => {
+    if (!currentQuestion?.options) return [];
+    return [...currentQuestion.options].sort(() => Math.random() - 0.5);
+  }, [currentQuestion]);
 
   const handleQuestionClick = (categoryIndex: number, questionIndex: number) => {
     setSelectedQuestion({ categoryIndex, questionIndex });
@@ -207,53 +106,8 @@ const Game = () => {
     if (selectedQuestion && currentQuestion) {
       updateTeamScore(teamId, currentQuestion.value);
       markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, teamId, true);
-
-      const team = teams.find(t => t.id === teamId);
-      broadcastState(selectedQuestion, 'ANSWER_REVEALED', {
-        type: 'CORRECT',
-        teamId: teamId,
-        teamName: team?.name,
-        amount: currentQuestion.value
-      });
       setSelectedQuestion(null);
     }
-  };
-
-  // Handle close question without answering (reset)
-  const handleCloseQuestion = () => {
-    broadcastState(null, 'WAITING');
-    setSelectedQuestion(null);
-  };
-
-  const handleWrongAnswer = (teamId: number) => {
-    if (selectedQuestion && currentQuestion) {
-      const team = teams.find(t => t.id === teamId);
-
-      // Mark as answered (wrongly) locally
-      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, teamId, false);
-
-      // Broadcast WRONG event for popup
-      broadcastState(selectedQuestion, 'ANSWER_REVEALED', {
-        type: 'WRONG',
-        teamId: teamId,
-        teamName: team?.name,
-        amount: 0
-      });
-
-      // Close the question
-      setSelectedQuestion(null);
-    }
-  };
-
-  const handleAdjustScore = (teamId: number, adjustment: number) => {
-    updateTeamScore(teamId, adjustment);
-    const team = teams.find(t => t.id === teamId);
-    broadcastState(selectedQuestion, 'QUESTION', {
-      type: 'ADJUST',
-      teamId,
-      teamName: team?.name,
-      amount: adjustment
-    });
   };
 
   const adjustMalus = (amount: number) => {
@@ -271,13 +125,37 @@ const Game = () => {
       const score = parseInt(malusScore) || 0;
       updateTeamScore(malusDialog.teamId, score);
       markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, malusDialog.teamId, true, score);
-      broadcastState(selectedQuestion, 'ANSWER_REVEALED', { type: 'ADJUST', teamId: malusDialog.teamId, teamName: malusDialog.teamName, amount: score });
       setMalusDialog({ isOpen: false, teamId: null, teamName: '' });
       setSelectedQuestion(null);
     }
   };
 
-  // End of Game component logic
+  const handleWrongAnswer = (teamId: number) => {
+    if (selectedQuestion && currentQuestion) {
+      updateTeamScore(teamId, -currentQuestion.value);
+      markQuestionAnswered(selectedQuestion.categoryIndex, selectedQuestion.questionIndex, teamId, false);
+      setSelectedQuestion(null);
+    }
+  };
+
+  const TeamScoreCard = ({ team }: { team: typeof teams[0] }) => (
+    <Card
+      className="px-1 py-1 md:px-4 md:py-3 flex items-center gap-1 md:gap-3 min-w-[100px] md:min-w-[180px]"
+      style={{ borderColor: `hsl(var(--${team.color}))`, borderWidth: '2px' }}
+    >
+      <div
+        className="w-5 h-5 rounded-full"
+        style={{ backgroundColor: `hsl(var(--${team.color}))` }}
+      />
+      <div className="flex-1">
+        <p className="font-semibold text-[0.65rem] md:text-sm truncate">{team.name}</p>
+        <p className="text-base md:text-xl font-bold leading-tight" style={{ color: `hsl(var(--${team.color}))` }}>
+          {team.score}
+        </p>
+      </div>
+    </Card>
+  );
+
   return (
     <div className={`min-h-screen flex flex-col p-4 space-y-6 ${theme === 'lcars' ? 'bg-black' : ''}`}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
@@ -304,9 +182,6 @@ const Game = () => {
         </Button>
         <Button variant="outline" onClick={() => navigate('/roulette')} className="ml-2 font-bold" title="Sorteggio">
           DADI?
-        </Button>
-        <Button variant="ghost" size="icon" onClick={() => setShowQr(true)} className="ml-2">
-          <QrCode className="h-6 w-6" />
         </Button>
       </div>
 
@@ -615,40 +490,8 @@ const Game = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      <Dialog open={showQr} onOpenChange={setShowQr}>
-        <DialogContent className="bg-white text-black flex flex-col items-center justify-center p-8 max-w-sm">
-          <h2 className="text-2xl font-bold mb-4">Scansiona per Giocare!</h2>
-          <div className="bg-white p-4 rounded-xl shadow-xl">
-            <QRCode value={`${window.location.origin}${window.location.pathname}#/live`} size={250} />
-          </div>
-          <p className="mt-4 text-center text-gray-500">
-            Inquadra con il telefono per vedere il tabellone in tempo reale.
-          </p>
-        </DialogContent>
-      </Dialog>
     </div >
   );
 };
-
-
-
-const TeamScoreCard = ({ team }: { team: { id: number; name: string; score: number; color: string } }) => (
-  <Card
-    className="px-1 py-1 md:px-4 md:py-3 flex items-center gap-1 md:gap-3 min-w-[100px] md:min-w-[180px]"
-    style={{ borderColor: `hsl(var(--${team.color}))`, borderWidth: '2px' }}
-  >
-    <div
-      className="w-5 h-5 rounded-full"
-      style={{ backgroundColor: `hsl(var(--${team.color}))` }}
-    />
-    <div className="flex-1">
-      <p className="font-semibold text-[0.65rem] md:text-sm truncate">{team.name}</p>
-      <p className="text-base md:text-xl font-bold leading-tight" style={{ color: `hsl(var(--${team.color}))` }}>
-        {team.score}
-      </p>
-    </div>
-  </Card>
-);
 
 export default Game;

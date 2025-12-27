@@ -138,7 +138,7 @@ export default function Live() {
 
             {/* Waiting State: The Grid */}
             {gameState.status === 'WAITING' && gameState.gridState && (
-                <div className="flex w-full pb-4 justify-center items-center flex-1">
+                <div className="flex w-full pb-4">
                     {gameState.gridState.length > 0 ? (
                         <div className="flex gap-2 md:gap-4 px-2 md:px-4 m-auto">
                             {gameState.gridState.map((col, i) => (
@@ -163,7 +163,6 @@ export default function Live() {
                                                         : theme === 'lcars'
                                                             ? 'black'
                                                             : 'hsl(var(--card))',
-                                                // Removed minHeight to match Game.tsx exactly
                                             }}
                                         >
                                             <p className={`text-[0.6rem] md:text-xs uppercase mb-1 opacity-80 font-semibold truncate w-full px-1 ${theme === 'lcars' ? 'text-[hsl(var(--lcars-orange))]' : 'text-muted-foreground'}`}>
@@ -287,7 +286,7 @@ export default function Live() {
                 <DialogContent className="bg-white text-black flex flex-col items-center justify-center p-8 max-w-sm">
                     <h2 className="text-2xl font-bold mb-4">Scansiona per Giocare!</h2>
                     <div className="bg-white p-4 rounded-xl shadow-xl">
-                        <QRCode value={`${window.location.origin}/#/live`} size={250} />
+                        <QRCode value={`${window.location.origin}${window.location.pathname}#/live`} size={250} />
                     </div>
                     <p className="mt-4 text-center text-gray-500">
                         OmniQuiz Live
